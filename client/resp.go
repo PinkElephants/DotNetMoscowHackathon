@@ -50,6 +50,7 @@ type Cell struct {
 	Visible      bool
 	NearWall     bool
 	Visited      bool
+	Current      bool
 }
 
 func (c Cell) Equal(other Cell) bool {

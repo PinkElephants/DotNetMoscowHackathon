@@ -47,9 +47,10 @@ type Bot struct {
 	info   client.ServerInfo
 	result client.TurnResult
 
-	turn       client.Turn
-	car        client.Car
-	cellsIndex [][][]client.Cell
+	turn         client.Turn
+	car          client.Car
+	cellsIndex   [][][]client.Cell
+	justAppeared [][][]client.Cell
 
 	wasAcceleratedPrevious bool
 }
@@ -93,7 +94,8 @@ func (b *Bot) Turn() client.Turn {
 func (b *Bot) happyPath() []client.Cell {
 	var path []client.Cell
 
-	current := b.closestToTarget()
+	closest := b.closestToTarget()
+	current := closest
 	for {
 		best := current
 		b.iterNeighbors(current, func(c client.Cell) {
@@ -124,12 +126,18 @@ func (b *Bot) allocateCells() {
 }
 
 func (b *Bot) updateCells(cells []client.Cell) {
+	b.iterAll(func(c client.Cell) {
+		c.Current = false
+		b.setCell(c.X, c.Y, c.Z, c)
+	})
+
 	carCell := b.cell(b.car.X, b.car.Y, b.car.Z)
 	carCell.Visible = true
 	carCell.Visited = true
 	b.setCell(b.car.X, b.car.Y, b.car.Z, carCell)
 	for _, c := range cells {
 		c.Visible = true
+		c.Current = true
 		b.setCell(c.X, c.Y, c.Z, c)
 	}
 }
@@ -200,7 +208,7 @@ func (b *Bot) closestToTarget() client.Cell {
 	dist := b.cell(b.car.X, b.car.Y, b.car.Z)
 
 	b.iterAll(func(c client.Cell) {
-		if c.Type == Rock || !c.Visible {
+		if c.Type == Rock || !c.Visible || !c.Current {
 			return
 		}
 		if c.DistToTarget < dist.DistToTarget {
