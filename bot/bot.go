@@ -21,6 +21,13 @@ const (
 	SouthWest = "SouthWest"
 )
 
+const (
+	Empty         = "Empty"
+	Rock          = "Rock"
+	DangerousArea = "DangerousArea"
+	Pit           = "Pit"
+)
+
 type Bot struct {
 	Help client.Help
 
