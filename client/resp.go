@@ -32,6 +32,10 @@ type Help struct {
 	} `json:"LocationDeltas"`
 }
 
+type Location struct {
+	X, Y, Z int
+}
+
 type Cell struct {
 	X, Y, Z int
 	Type    string
@@ -78,6 +82,14 @@ func (s *ServerInfo) Cells() []Cell {
 	return nil
 }
 
+func (s *ServerInfo) Loc() Location {
+	return Location{
+		X: s.CurrentLocation.X,
+		Y: s.CurrentLocation.Y,
+		Z: s.CurrentLocation.Z,
+	}
+}
+
 type TurnResult struct {
 	Command struct {
 		Location struct {
@@ -122,4 +134,12 @@ func (s *TurnResult) Cells() []Cell {
 		}
 	}
 	return nil
+}
+
+func (s *TurnResult) Loc() Location {
+	return Location{
+		X: s.Location.X,
+		Y: s.Location.Y,
+		Z: s.Location.Z,
+	}
 }
