@@ -5,5 +5,6 @@ type Login struct {
 	Password string
 }
 
-type Turn struct {
+type Start struct {
+	Map string
 }

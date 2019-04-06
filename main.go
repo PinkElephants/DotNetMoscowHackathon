@@ -7,5 +7,6 @@ import (
 func main() {
 	c := client.NewClient()
 	c.Login()
-	c.Turn()
+	c.Start()
+
 }
