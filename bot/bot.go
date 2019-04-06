@@ -131,13 +131,23 @@ func (b *Bot) acceleration(goTo client.Cell) int {
 
 	if goTo.Type == Pit {
 		b.wasAcceleratedPrevious = true
-		return b.Help.MinCanyonSpeed - b.car.Speed
+		acceleration := b.Help.MinCanyonSpeed - b.car.Speed
+		b.car.Speed += acceleration
+		return acceleration
 	}
 	if goTo.Type == DangerousArea {
-		return b.car.Speed - b.Help.MaxDuneSpeed
+		acceleration := b.car.Speed - b.Help.MaxDuneSpeed
+		b.car.Speed += acceleration
+		return acceleration
 	}
 
-	return safeSpeed - b.car.Speed
+	acceleration := safeSpeed - b.car.Speed
+	if acceleration > b.Help.MaxAcceleration {
+		acceleration = b.Help.MaxAcceleration
+	}
+	b.car.Speed += acceleration
+
+	return acceleration
 }
 
 func (b *Bot) scan() {

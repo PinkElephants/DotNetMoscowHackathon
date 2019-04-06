@@ -9,11 +9,11 @@ import (
 )
 
 const (
-	host     = "http://51.15.100.12:5000"
+	host     = "http://127.0.0.1:5000"
 	loginURL = host + "/raceapi/Auth/Login"
 	raceURL  = host + "/raceapi/race"
 	helpURL  = host + "/raceapi/help/math"
-	mapName  = "test"
+	mapName  = "labirint"
 )
 
 type Client struct {
