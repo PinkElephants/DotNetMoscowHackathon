@@ -119,3 +119,13 @@ func (b *Bot) closestToTarget() client.Cell {
 	}
 	return closest
 }
+
+func (b *Bot) iterAll(f func(c client.Cell)) {
+	for x := range b.cellsIndex {
+		for y := range b.cellsIndex[x] {
+			for z := range b.cellsIndex[x][y] {
+				f(b.cellsIndex[x][y][z])
+			}
+		}
+	}
+}
