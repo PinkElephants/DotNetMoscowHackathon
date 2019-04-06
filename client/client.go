@@ -12,6 +12,7 @@ const (
 	host     = "http://51.15.100.12:5000"
 	loginURL = host + "/raceapi/Auth/Login"
 	raceURL  = host + "/raceapi/race"
+	helpURL  = host + "/raceapi/help/math"
 	mapName  = "test"
 )
 
@@ -48,6 +49,21 @@ func (c *Client) Login() {
 	body, _ := ioutil.ReadAll(resp.Body)
 	err = json.Unmarshal(body, &c.token)
 	checkErr(err)
+}
+
+func (c *Client) Help() Help {
+	req, err := http.NewRequest("GET", helpURL, nil)
+	checkErr(err)
+	resp, err := c.http.Do(req)
+	checkErr(err)
+	defer resp.Body.Close()
+
+	body, _ := ioutil.ReadAll(resp.Body)
+	fmt.Println(string(body))
+	help := Help{}
+	err = json.Unmarshal(body, &help)
+	checkErr(err)
+	return help
 }
 
 func (c *Client) Start() {
