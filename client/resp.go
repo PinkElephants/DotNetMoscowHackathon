@@ -66,12 +66,12 @@ type ServerInfo struct {
 }
 
 func (s *ServerInfo) Cells() []Cell {
-	cells := make([]Cell, len(s.NeighbourCells)
+	cells := make([]Cell, len(s.NeighbourCells))
 	for i, c := range s.NeighbourCells {
 		cells[i] = Cell{
-			X: c.Item1.X,
-			Y: c.Item1.Y,
-			Z: c.Item1.Z,
+			X:    c.Item1.X,
+			Y:    c.Item1.Y,
+			Z:    c.Item1.Z,
 			Type: c.Item2,
 		}
 	}
@@ -109,4 +109,17 @@ type TurnResult struct {
 	Status            string `json:"Status"`
 	Heading           string `json:"Heading"`
 	FuelWaste         int    `json:"FuelWaste"`
+}
+
+func (s *TurnResult) Cells() []Cell {
+	cells := make([]Cell, len(s.VisibleCells))
+	for i, c := range s.VisibleCells {
+		cells[i] = Cell{
+			X:    c.Item1.X,
+			Y:    c.Item1.Y,
+			Z:    c.Item1.Z,
+			Type: c.Item2,
+		}
+	}
+	return nil
 }
