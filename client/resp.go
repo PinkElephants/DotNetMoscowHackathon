@@ -168,11 +168,10 @@ func (s *TurnResult) Cells() []Cell {
 
 func (s *TurnResult) Car() Car {
 	return Car{
-		X:            s.Location.X,
-		Y:            s.Location.Y,
-		Z:            s.Location.Z,
-		Acceleration: s.Command.Acceleration,
-		Heading:      s.Command.Heading,
-		Speed:        s.Command.Speed,
+		X:       s.Location.X,
+		Y:       s.Location.Y,
+		Z:       s.Location.Z,
+		Heading: s.Heading,
+		Speed:   s.Speed,
 	}
 }

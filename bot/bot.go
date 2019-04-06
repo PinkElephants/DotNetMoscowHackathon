@@ -135,7 +135,20 @@ func (b *Bot) updateCells(cells []client.Cell) {
 }
 
 func (b *Bot) acceleration(goTo client.Cell) int {
-	safeSpeed := b.Help.MaxDuneSpeed + b.Help.MaxAcceleration
+	safeSpeed := ((b.Help.MinCanyonSpeed - b.Help.MaxDuneSpeed) / 2) + b.Help.MaxDuneSpeed
+
+	if goTo.Type == Pit {
+		return b.Help.MinCanyonSpeed - b.car.Speed
+	}
+	if goTo.Type == DangerousArea {
+		return b.car.Speed - b.Help.MaxDuneSpeed
+	}
+	//if goTo.Type == DangerousArea {
+	//	acceleration := b.car.Speed - b.Help.MaxDuneSpeed
+	//	b.car.Speed += acceleration
+	//	return acceleration
+	//}
+
 	// if goTo.Type != Pit && b.wasAcceleratedPrevious {
 	// 	b.wasAcceleratedPrevious = false
 	// }
@@ -152,13 +165,7 @@ func (b *Bot) acceleration(goTo client.Cell) int {
 	// 	return acceleration
 	// }
 
-	acceleration := safeSpeed - b.car.Speed
-	if acceleration > b.Help.MaxAcceleration {
-		acceleration = b.Help.MaxAcceleration
-	}
-	b.car.Speed += acceleration
-
-	return acceleration
+	return safeSpeed - b.car.Speed
 }
 
 func (b *Bot) scan() {
