@@ -65,8 +65,16 @@ type ServerInfo struct {
 	Fuel int `json:"Fuel"`
 }
 
-func (i *ServerInfo) Cells() []Cell {
-	// var cells
+func (s *ServerInfo) Cells() []Cell {
+	cells := make([]Cell, len(s.NeighbourCells)
+	for i, c := range s.NeighbourCells {
+		cells[i] = Cell{
+			X: c.Item1.X,
+			Y: c.Item1.Y,
+			Z: c.Item1.Z,
+			Type: c.Item2,
+		}
+	}
 	return nil
 }
 
