@@ -10,7 +10,7 @@ func main() {
 	c := client.NewClient()
 	c.Login()
 	b.Help = c.Help()
-	b.Info = c.Start()
+	b.Start(c.Start())
 
 	for {
 		res := c.Turn(b.Turn())
