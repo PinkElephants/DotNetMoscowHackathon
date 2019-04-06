@@ -32,8 +32,13 @@ type Help struct {
 	} `json:"LocationDeltas"`
 }
 
-type Location struct {
-	X, Y, Z int
+type Car struct {
+	X, Y, Z      int
+	Acceleration int
+	Direction    string
+	Heading      string
+	Speed        int
+	Fuel         int
 }
 
 type Cell struct {
@@ -82,11 +87,13 @@ func (s *ServerInfo) Cells() []Cell {
 	return nil
 }
 
-func (s *ServerInfo) Loc() Location {
-	return Location{
-		X: s.CurrentLocation.X,
-		Y: s.CurrentLocation.Y,
-		Z: s.CurrentLocation.Z,
+func (s *ServerInfo) Car() Car {
+	return Car{
+		X:         s.CurrentLocation.X,
+		Y:         s.CurrentLocation.Y,
+		Z:         s.CurrentLocation.Z,
+		Direction: s.CurrentDirection,
+		Fuel:      s.Fuel,
 	}
 }
 
@@ -136,10 +143,14 @@ func (s *TurnResult) Cells() []Cell {
 	return nil
 }
 
-func (s *TurnResult) Loc() Location {
-	return Location{
-		X: s.Location.X,
-		Y: s.Location.Y,
-		Z: s.Location.Z,
+func (s *TurnResult) Car() Car {
+	return Car{
+		X:            s.Location.X,
+		Y:            s.Location.Y,
+		Z:            s.Location.Z,
+		Direction:    s.Command.MovementDirection,
+		Acceleration: s.Command.Acceleration,
+		Heading:      s.Command.Heading,
+		Speed:        s.Command.Speed,
 	}
 }
