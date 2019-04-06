@@ -304,6 +304,12 @@ func (b *Bot) selectGoTo(path []client.Cell) string {
 		priority int
 	}
 
+	f := b.info.Finish
+	res := b.carCell().DistanceFrom(client.Cell{X: f.X, Y: f.Y, Z: f.Z})
+	if res == 1 {
+		return angle(b.carCell(), client.Cell{X: f.X, Y: f.Y, Z: f.Z})
+	}
+
 	var heading string
 	if len(b.car.Heading) != 0 {
 		heading = b.car.Heading
