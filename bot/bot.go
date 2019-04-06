@@ -36,7 +36,7 @@ type Bot struct {
 	turn       client.Turn
 	car        client.Car
 	cellsIndex [][][]client.Cell
-	cells      []client.Cell
+	//cells      []client.Cell
 }
 
 func NewBot() *Bot {
@@ -67,7 +67,7 @@ func (b *Bot) Turn() client.Turn {
 
 func (b *Bot) allocateCells(cells []client.Cell) {
 	b.cellsIndex = make([][][]client.Cell, b.info.Radius)
-	for i := range b.cells {
+	for i := range cells {
 		b.cellsIndex[i] = make([][]client.Cell, b.info.Radius)
 		for j := range b.cellsIndex[i] {
 			b.cellsIndex[i][j] = make([]client.Cell, b.info.Radius)
@@ -77,7 +77,6 @@ func (b *Bot) allocateCells(cells []client.Cell) {
 		c.Visible = true
 		b.cellsIndex[c.X][c.Y][c.Z] = c
 	}
-	b.cells = cells
 }
 
 func (b *Bot) updateCells(cells []client.Cell) {
@@ -95,9 +94,10 @@ func (b *Bot) acceleration() int {
 }
 
 func (b *Bot) scan() {
-	for _, c := range b.cells {
+
+	b.iterAll(func(c client.Cell) {
 		if c.Type == "Rock" {
-			continue
+			return
 		}
 
 		toCar := c.DistanceFrom(client.Cell{
@@ -112,20 +112,27 @@ func (b *Bot) scan() {
 			Z: b.info.Finish.Z,
 		})
 		c.DistToTarget = toTarget
-	}
+	})
 }
 
 func (b *Bot) closestToTarget() client.Cell {
-	closest := b.cells[0]
-	for _, c := range b.cells {
-		if c.Type == "Rock" {
-			continue
+
+	minDist := 0
+	var dist client.Cell
+
+	calcMinDist := func(c client.Cell) {
+		if c.Type == Rock {
+			return
 		}
-		if c.DistToTarget < closest.DistToTarget {
-			closest = c
+		if c.DistToTarget < minDist {
+			minDist = c.DistToTarget
+			dist = c
 		}
 	}
-	return closest
+
+	b.iterAll(calcMinDist)
+
+	return dist
 }
 
 func (b *Bot) iterateNeighbors(cell client.Cell, f func(c client.Cell)) {
