@@ -8,3 +8,8 @@ type Login struct {
 type Start struct {
 	Map string
 }
+
+type Turn struct {
+	Direction    string
+	Acceleration int
+}

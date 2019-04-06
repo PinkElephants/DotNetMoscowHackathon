@@ -17,9 +17,9 @@ const (
 )
 
 type Client struct {
-	http  http.Client
-	token Token
-	info  ServerInfo
+	http    http.Client
+	token   Token
+	session string
 }
 
 func NewClient() *Client {
@@ -59,41 +59,53 @@ func (c *Client) Help() Help {
 	defer resp.Body.Close()
 
 	body, _ := ioutil.ReadAll(resp.Body)
-	fmt.Println(string(body))
 	help := Help{}
 	err = json.Unmarshal(body, &help)
+
 	checkErr(err)
 	return help
 }
 
-func (c *Client) Start() {
+func (c *Client) Start() ServerInfo {
 	start, err := json.Marshal(Start{
 		Map: mapName,
 	})
 
-	req := c.request(raceURL, start)
+	req := c.request("POST", raceURL, start)
 	resp, err := c.http.Do(req)
 	checkErr(err)
 	defer resp.Body.Close()
 
 	body, _ := ioutil.ReadAll(resp.Body)
-	err = json.Unmarshal(body, &c.info)
+	info := ServerInfo{}
+	err = json.Unmarshal(body, &info)
 	checkErr(err)
+	c.session = info.SessionID
+	return info
 }
 
-func (c *Client) Turn() {
-	req := c.request(raceURL, []byte("test"))
+func (c *Client) Turn(t Turn) TurnResult {
+	turn, err := json.Marshal(t)
+
+	req := c.request("PUT", c.turnUrl(), turn)
 	resp, err := c.http.Do(req)
 	checkErr(err)
 
 	defer resp.Body.Close()
 
 	body, _ := ioutil.ReadAll(resp.Body)
-	fmt.Println("Turn: ", string(body))
+	res := TurnResult{}
+	err = json.Unmarshal(body, &res)
+	checkErr(err)
+	return res
 }
 
-func (c *Client) request(url string, body []byte) *http.Request {
-	req, err := http.NewRequest("POST", url, bytes.NewBuffer(body))
+func (c *Client) turnUrl() string {
+	return raceURL + "/" + c.session
+}
+
+func (c *Client) request(method, url string, body []byte) *http.Request {
+	req, err := http.NewRequest(method, url, bytes.NewBuffer(body))
 	checkErr(err)
 	req.Header.Set("Content-Type", "application/json")
 	if len(c.token.Token) != 0 {
