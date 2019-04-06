@@ -95,11 +95,11 @@ func (b *Bot) happyPath() []client.Cell {
 }
 
 func (b *Bot) allocateCells() {
-	b.cellsIndex = make([][][]client.Cell, b.info.Radius)
+	b.cellsIndex = make([][][]client.Cell, b.info.Radius*2)
 	for i := range b.cellsIndex {
-		b.cellsIndex[i] = make([][]client.Cell, b.info.Radius)
+		b.cellsIndex[i] = make([][]client.Cell, b.info.Radius*2)
 		for j := range b.cellsIndex[i] {
-			b.cellsIndex[i][j] = make([]client.Cell, b.info.Radius)
+			b.cellsIndex[i][j] = make([]client.Cell, b.info.Radius*2)
 		}
 	}
 }
@@ -107,7 +107,7 @@ func (b *Bot) allocateCells() {
 func (b *Bot) updateCells(cells []client.Cell) {
 	for _, c := range cells {
 		c.Visible = true
-		b.cellsIndex[c.X][c.Y][c.Z] = c
+		b.cell(c.X, c.Y, c.Z) = c
 	}
 }
 
@@ -147,7 +147,7 @@ func (b *Bot) scan() {
 }
 
 func (b *Bot) closestToTarget() client.Cell {
-	dist := b.cellsIndex[b.car.X][b.car.Y][b.car.Z]
+	dist := b.cell(b.car.X, b.car.Y, b.car.Z)
 
 	b.iterAll(func(c client.Cell) {
 		if c.Type == Rock || !c.Visible {
@@ -162,12 +162,12 @@ func (b *Bot) closestToTarget() client.Cell {
 }
 
 func (b *Bot) iterNeighbors(cell client.Cell, f func(c client.Cell)) {
-	f(b.cellsIndex[cell.X-1][cell.Y+1][cell.Z])
-	f(b.cellsIndex[cell.X][cell.Y+1][cell.Z-1])
-	f(b.cellsIndex[cell.X+1][cell.Y][cell.Z-1])
-	f(b.cellsIndex[cell.X+1][cell.Y-1][cell.Z])
-	f(b.cellsIndex[cell.X][cell.Y-1][cell.Z+1])
-	f(b.cellsIndex[cell.X-1][cell.Y][cell.Z+1])
+	f(b.cell(cell.X-1, cell.Y+1, cell.Z))
+	f(b.cell(cell.X, cell.Y+1, cell.Z-1))
+	f(b.cell(cell.X+1, cell.Y, cell.Z-1))
+	f(b.cell(cell.X+1, cell.Y-1, cell.Z))
+	f(b.cell(cell.X, cell.Y-1, cell.Z+1))
+	f(b.cell(cell.X-1, cell.Y, cell.Z+1))
 }
 
 func (b *Bot) iterAll(f func(c client.Cell)) {
@@ -178,6 +178,20 @@ func (b *Bot) iterAll(f func(c client.Cell)) {
 			}
 		}
 	}
+}
+
+func (b *Bot) cell(x, y, z int) client.Cell {
+	r := b.info.Radius
+	if x > r || x < 0 {
+		return client.Cell{}
+	}
+	if y > r || y < 0 {
+		return client.Cell{}
+	}
+	if z > r || z < 0 {
+		return client.Cell{}
+	}
+	return b.cellsIndex[x+r][y+r][z+r]
 }
 
 func angle(from client.Cell, to client.Cell) string {
