@@ -36,6 +36,8 @@ type Bot struct {
 	turn       client.Turn
 	car        client.Car
 	cellsIndex [][][]client.Cell
+
+	wasAcceleratedPrevious bool
 }
 
 func NewBot() *Bot {
@@ -70,7 +72,7 @@ func (b *Bot) makeTurn() {
 			Y: b.car.Y,
 			Z: b.car.Z,
 		}, goTo),
-		Acceleration: b.acceleration(path),
+		Acceleration: b.acceleration(goTo),
 	}
 }
 
@@ -121,17 +123,20 @@ func (b *Bot) updateCells(cells []client.Cell) {
 	}
 }
 
-func (b *Bot) acceleration(path []client.Cell) int {
-	// if path[len(path)-2].Type == Pit {
-	// 	b.Help.MinCanyonSpeed
-	// }
-
-	safeSpeed := b.Help.MaxSpeed
-	for _, a := range b.Help.DriftsAngles {
-		if safeSpeed > a.MaxSpeed {
-			safeSpeed = a.MaxSpeed
-		}
+func (b *Bot) acceleration(goTo client.Cell) int {
+	safeSpeed := b.Help.MaxDuneSpeed + b.Help.MaxAcceleration
+	if goTo.Type != Pit && b.wasAcceleratedPrevious {
+		b.wasAcceleratedPrevious = false
 	}
+
+	if goTo.Type == Pit {
+		b.wasAcceleratedPrevious = true
+		return b.Help.MinCanyonSpeed - b.car.Speed
+	}
+	if goTo.Type == DangerousArea {
+		return b.car.Speed - b.Help.MaxDuneSpeed
+	}
+
 	return safeSpeed - b.car.Speed
 }
 
