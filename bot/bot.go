@@ -137,10 +137,6 @@ func (b *Bot) acceleration(path []client.Cell) int {
 
 func (b *Bot) scan() {
 	b.iterAll(func(c client.Cell) {
-		if c.X == b.car.X && c.Y == b.car.Y && c.Z == b.car.Z {
-			a := 10
-			_ = a
-		}
 		if c.Type == Rock {
 			return
 		}

@@ -163,7 +163,7 @@ func (s *TurnResult) Cells() []Cell {
 			Type: c.Item2,
 		}
 	}
-	return nil
+	return cells
 }
 
 func (s *TurnResult) Car() Car {
