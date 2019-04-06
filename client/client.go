@@ -96,6 +96,7 @@ func (c *Client) UpdateUI() {
 
 func (c *Client) Turn(t Turn) TurnResult {
 	turn, err := json.Marshal(t)
+	fmt.Printf("Go to %v", string(turn))
 
 	req := c.request("PUT", c.turnUrl(), turn)
 	resp, err := c.http.Do(req)
