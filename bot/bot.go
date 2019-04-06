@@ -153,3 +153,33 @@ func (b *Bot) iterAll(f func(c client.Cell)) {
 		}
 	}
 }
+
+func Side(from client.Cell, to client.Cell) string {
+	northEast := client.Cell{X: from.X + 1, Y: from.Y - 1, Z: from.Z}
+	northWest := client.Cell{X: from.X, Y: from.Y - 1, Z: from.Z + 1}
+	west := client.Cell{X: from.X - 1, Y: from.Y, Z: from.Z + 1}
+	southWest := client.Cell{X: from.X - 1, Y: from.Y + 1, Z: from.Z}
+	southEast := client.Cell{X: from.X, Y: from.Y + 1, Z: from.Z - 1}
+	east := client.Cell{X: from.X + 1, Y: from.Y, Z: from.Z - 1}
+
+	if to == northEast {
+		return NorthEast
+	}
+	if to == northWest {
+		return NorthWest
+	}
+	if to == west {
+		return West
+	}
+	if to == southWest {
+		return SouthWest
+	}
+	if to == southEast {
+		return SouthEast
+	}
+	if to == east {
+		return East
+	}
+
+	panic("smth broken")
+}
