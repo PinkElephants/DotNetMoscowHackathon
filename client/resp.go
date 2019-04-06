@@ -1,5 +1,7 @@
 package client
 
+import "math"
+
 type Token struct {
 	Token string
 }
@@ -44,6 +46,11 @@ type Car struct {
 type Cell struct {
 	X, Y, Z int
 	Type    string
+}
+
+func (c *Cell) DistanceFrom(origin Cell) int {
+	res := (math.Abs(float64(c.X)-float64(origin.X)) + math.Abs(float64(c.Y)-float64(origin.Y)) + math.Abs(float64(c.Z)-float64(origin.Z))) / 2
+	return int(res)
 }
 
 type ServerInfo struct {
