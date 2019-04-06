@@ -107,7 +107,7 @@ func (b *Bot) allocateCells() {
 func (b *Bot) updateCells(cells []client.Cell) {
 	for _, c := range cells {
 		c.Visible = true
-		b.cell(c.X, c.Y, c.Z) = c
+		b.setCell(c.X, c.Y, c.Z, c)
 	}
 }
 
@@ -192,6 +192,11 @@ func (b *Bot) cell(x, y, z int) client.Cell {
 		return client.Cell{}
 	}
 	return b.cellsIndex[x+r][y+r][z+r]
+}
+
+func (b *Bot) setCell(x, y, z int, c client.Cell) {
+	r := b.info.Radius
+	b.cellsIndex[x+r][y+r][z+r] = c
 }
 
 func angle(from client.Cell, to client.Cell) string {
