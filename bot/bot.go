@@ -247,3 +247,26 @@ func angle(from client.Cell, to client.Cell) string {
 
 	panic("smth broken")
 }
+
+func coordFromPointAndAngle(from client.Cell, heading string) client.Cell {
+	if heading == NorthEast {
+		return client.Cell{X: from.X + 1, Y: from.Y, Z: from.Z - 1}
+	}
+	if heading == NorthWest {
+		return client.Cell{X: from.X, Y: from.Y + 1, Z: from.Z - 1}
+	}
+	if heading == West {
+		return client.Cell{X: from.X - 1, Y: from.Y + 1, Z: from.Z}
+	}
+	if heading == SouthWest {
+		return client.Cell{X: from.X - 1, Y: from.Y, Z: from.Z + 1}
+	}
+	if heading == SouthEast {
+		return client.Cell{X: from.X, Y: from.Y - 1, Z: from.Z + 1}
+	}
+	if heading == East {
+		return client.Cell{X: from.X + 1, Y: from.Y - 1, Z: from.Z}
+	}
+
+	panic("smth broken")
+}
