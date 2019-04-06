@@ -218,12 +218,12 @@ func (b *Bot) setCell(x, y, z int, c client.Cell) {
 }
 
 func angle(from client.Cell, to client.Cell) string {
-	northEast := client.Cell{X: from.X + 1, Y: from.Y - 1, Z: from.Z}
-	northWest := client.Cell{X: from.X, Y: from.Y - 1, Z: from.Z + 1}
-	west := client.Cell{X: from.X - 1, Y: from.Y, Z: from.Z + 1}
-	southWest := client.Cell{X: from.X - 1, Y: from.Y + 1, Z: from.Z}
-	southEast := client.Cell{X: from.X, Y: from.Y + 1, Z: from.Z - 1}
-	east := client.Cell{X: from.X + 1, Y: from.Y, Z: from.Z - 1}
+	northEast := client.Cell{X: from.X + 1, Y: from.Y, Z: from.Z - 1}
+	northWest := client.Cell{X: from.X, Y: from.Y + 1, Z: from.Z - 1}
+	west := client.Cell{X: from.X - 1, Y: from.Y + 1, Z: from.Z}
+	southWest := client.Cell{X: from.X - 1, Y: from.Y, Z: from.Z + 1}
+	southEast := client.Cell{X: from.X, Y: from.Y - 1, Z: from.Z + 1}
+	east := client.Cell{X: from.X + 1, Y: from.Y - 1, Z: from.Z}
 
 	if to.Equal(northEast) {
 		return NorthEast
