@@ -48,6 +48,7 @@ type Cell struct {
 	Type         string
 	DistToCar    int
 	DistToTarget int
+	Visible      bool
 }
 
 func (c *Cell) DistanceFrom(origin Cell) int {

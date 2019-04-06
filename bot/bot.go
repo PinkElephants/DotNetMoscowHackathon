@@ -53,7 +53,7 @@ func (b *Bot) Result(result client.TurnResult) {
 	b.car = result.Car()
 	b.allocateCells(result.Cells())
 	b.scan()
-	toTarget := b.closestToTarget()
+	// toTarget := b.closestToTarget()
 
 	b.turn = client.Turn{
 		Direction:    "West",
@@ -74,9 +74,14 @@ func (b *Bot) allocateCells(cells []client.Cell) {
 		}
 	}
 	for _, c := range cells {
+		c.Visible = true
 		b.cellsIndex[c.X][c.Y][c.Z] = c
 	}
 	b.cells = cells
+}
+
+func (b *Bot) updateCells(cells []client.Cell) {
+	// todo
 }
 
 func (b *Bot) acceleration() int {
@@ -113,11 +118,23 @@ func (b *Bot) scan() {
 func (b *Bot) closestToTarget() client.Cell {
 	closest := b.cells[0]
 	for _, c := range b.cells {
+		if c.Type == "Rock" {
+			continue
+		}
 		if c.DistToTarget < closest.DistToTarget {
 			closest = c
 		}
 	}
 	return closest
+}
+
+func (b *Bot) iterateNeighbors(cell client.Cell, f func(c client.Cell)) {
+	f(b.cellsIndex[cell.X-1][cell.Z][cell.Y+1])
+	f(b.cellsIndex[cell.X][cell.Z-1][cell.Y+1])
+	f(b.cellsIndex[cell.X+1][cell.Z-1][cell.Y])
+	f(b.cellsIndex[cell.X+1][cell.Z][cell.Y-1])
+	f(b.cellsIndex[cell.X][cell.Z+1][cell.Y-1])
+	f(b.cellsIndex[cell.X-1][cell.Z+1][cell.Y])
 }
 
 func (b *Bot) iterAll(f func(c client.Cell)) {
