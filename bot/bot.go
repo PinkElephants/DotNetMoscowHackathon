@@ -58,7 +58,7 @@ func (b *Bot) Result(result client.TurnResult) {
 	goTo := path[len(path)-2]
 
 	b.turn = client.Turn{
-		Direction: Side(client.Cell{
+		Direction: andgle(client.Cell{
 			X: b.car.X,
 			Y: b.car.Y,
 			Z: b.car.Z,
@@ -180,7 +180,7 @@ func (b *Bot) iterAll(f func(c client.Cell)) {
 	}
 }
 
-func Side(from client.Cell, to client.Cell) string {
+func andgle(from client.Cell, to client.Cell) string {
 	northEast := client.Cell{X: from.X + 1, Y: from.Y - 1, Z: from.Z}
 	northWest := client.Cell{X: from.X, Y: from.Y - 1, Z: from.Z + 1}
 	west := client.Cell{X: from.X - 1, Y: from.Y, Z: from.Z + 1}
