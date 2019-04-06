@@ -36,7 +36,6 @@ type Bot struct {
 	turn       client.Turn
 	car        client.Car
 	cellsIndex [][][]client.Cell
-	//cells      []client.Cell
 }
 
 func NewBot() *Bot {
@@ -46,12 +45,13 @@ func NewBot() *Bot {
 func (b *Bot) Start(info client.ServerInfo) {
 	b.info = info
 	b.car = info.Car()
-	b.allocateCells(info.Cells())
+	b.allocateCells()
+	b.updateCells(info.Cells())
 }
 
 func (b *Bot) Result(result client.TurnResult) {
 	b.car = result.Car()
-	b.allocateCells(result.Cells())
+	b.updateCells(result.Cells())
 	b.scan()
 
 	// path := b.happyPath()
@@ -90,22 +90,21 @@ func (b *Bot) happyPath() []client.Cell {
 	return path
 }
 
-func (b *Bot) allocateCells(cells []client.Cell) {
+func (b *Bot) allocateCells() {
 	b.cellsIndex = make([][][]client.Cell, b.info.Radius)
-	for i := range cells {
+	for i := range b.cellsIndex {
 		b.cellsIndex[i] = make([][]client.Cell, b.info.Radius)
 		for j := range b.cellsIndex[i] {
 			b.cellsIndex[i][j] = make([]client.Cell, b.info.Radius)
 		}
 	}
+}
+
+func (b *Bot) updateCells(cells []client.Cell) {
 	for _, c := range cells {
 		c.Visible = true
 		b.cellsIndex[c.X][c.Y][c.Z] = c
 	}
-}
-
-func (b *Bot) updateCells(cells []client.Cell) {
-	// todo
 }
 
 func (b *Bot) acceleration() int {
@@ -119,7 +118,6 @@ func (b *Bot) acceleration() int {
 }
 
 func (b *Bot) scan() {
-
 	b.iterAll(func(c client.Cell) {
 		if c.Type == "Rock" {
 			return
@@ -141,32 +139,27 @@ func (b *Bot) scan() {
 }
 
 func (b *Bot) closestToTarget() client.Cell {
+	dist := b.cellsIndex[b.car.X][b.car.Y][b.car.Z]
 
-	minDist := 0
-	var dist client.Cell
-
-	calcMinDist := func(c client.Cell) {
-		if c.Type == Rock {
+	b.iterAll(func(c client.Cell) {
+		if c.Type == Rock || !c.Visible {
 			return
 		}
-		if c.DistToTarget < minDist {
-			minDist = c.DistToTarget
+		if c.DistToTarget < dist.DistToTarget {
 			dist = c
 		}
-	}
-
-	b.iterAll(calcMinDist)
+	})
 
 	return dist
 }
 
 func (b *Bot) iterateNeighbors(cell client.Cell, f func(c client.Cell)) {
-	f(b.cellsIndex[cell.X-1][cell.Z][cell.Y+1])
-	f(b.cellsIndex[cell.X][cell.Z-1][cell.Y+1])
-	f(b.cellsIndex[cell.X+1][cell.Z-1][cell.Y])
-	f(b.cellsIndex[cell.X+1][cell.Z][cell.Y-1])
-	f(b.cellsIndex[cell.X][cell.Z+1][cell.Y-1])
-	f(b.cellsIndex[cell.X-1][cell.Z+1][cell.Y])
+	f(b.cellsIndex[cell.X-1][cell.Y+1][cell.Z])
+	f(b.cellsIndex[cell.X][cell.Y+1][cell.Z-1])
+	f(b.cellsIndex[cell.X+1][cell.Y][cell.Z-1])
+	f(b.cellsIndex[cell.X+1][cell.Y-1][cell.Z])
+	f(b.cellsIndex[cell.X][cell.Y-1][cell.Z+1])
+	f(b.cellsIndex[cell.X-1][cell.Y][cell.Z+1])
 }
 
 func (b *Bot) iterAll(f func(c client.Cell)) {
