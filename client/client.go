@@ -9,7 +9,7 @@ import (
 )
 
 const (
-	host     = "http://51.158.109.80:5000"
+	host     = "http://127.0.0.1:5000"
 	loginURL = host + "/raceapi/Auth/Login"
 	raceURL  = host + "/raceapi/race"
 	helpURL  = host + "/raceapi/help/math"

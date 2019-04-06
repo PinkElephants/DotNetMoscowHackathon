@@ -297,8 +297,8 @@ func (b *Bot) selectGoTo(path []client.Cell) string {
 	}
 
 	var heading string
-	if len(b.result.Heading) != 0 {
-		heading = b.result.Heading
+	if len(b.car.Heading) != 0 {
+		heading = b.car.Heading
 	} else {
 		if len(path) == 0 {
 			heading = angles[rand.Int()%6]
