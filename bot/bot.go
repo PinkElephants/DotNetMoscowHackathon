@@ -53,7 +53,9 @@ func (b *Bot) Result(result client.TurnResult) {
 	b.car = result.Car()
 	b.allocateCells(result.Cells())
 	b.scan()
-	// toTarget := b.closestToTarget()
+
+	// path := b.happyPath()
+	// goTo := path[len(path)-2]
 
 	b.turn = client.Turn{
 		Direction:    "West",
@@ -63,6 +65,29 @@ func (b *Bot) Result(result client.TurnResult) {
 
 func (b *Bot) Turn() client.Turn {
 	return b.turn
+}
+
+func (b *Bot) happyPath() []client.Cell {
+	var path []client.Cell
+
+	current := b.closestToTarget()
+	for {
+		best := current
+		b.iterateNeighbors(current, func(c client.Cell) {
+			if !c.Visible {
+				return
+			}
+			if current.DistToCar < best.DistToCar {
+				best = current
+			}
+		})
+		if best == current {
+			break
+		}
+		current = best
+		path = append(path, current)
+	}
+	return path
 }
 
 func (b *Bot) allocateCells(cells []client.Cell) {
