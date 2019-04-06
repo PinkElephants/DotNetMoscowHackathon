@@ -250,22 +250,22 @@ func angle(from client.Cell, to client.Cell) string {
 
 func (b *Bot) coordFromPointAndAngle(from client.Cell, heading string) client.Cell {
 	if heading == NorthEast {
-		return b.cellsIndex[from.X+1][from.Y][from.Z-1]
+		return b.cell(from.X+1, from.Y, from.Z-1)
 	}
 	if heading == NorthWest {
-		return b.cellsIndex[from.X][from.Y+1][from.Z-1]
+		return b.cell(from.X, from.Y+1, from.Z-1)
 	}
 	if heading == West {
-		return b.cellsIndex[from.X-1][from.Y+1][from.Z]
+		return b.cell(from.X-1, from.Y+1, from.Z)
 	}
 	if heading == SouthWest {
-		return b.cellsIndex[from.X-1][from.Y][from.Z+1]
+		return b.cell(from.X-1, from.Y, from.Z+1)
 	}
 	if heading == SouthEast {
-		return b.cellsIndex[from.X][from.Y-1][from.Z+1]
+		return b.cell(from.X, from.Y-1, from.Z+1)
 	}
 	if heading == East {
-		return b.cellsIndex[from.X+1][from.Y-1][from.Z]
+		return b.cell(from.X+1, from.Y-1, from.Z)
 	}
 
 	panic("smth broken")
