@@ -50,6 +50,8 @@ type Bot struct {
 	turn       client.Turn
 	car        client.Car
 	cellsIndex [][][]client.Cell
+
+	wasAcceleratedPrevious bool
 }
 
 func NewBot() *Bot {
@@ -81,9 +83,10 @@ func (b *Bot) makeTurn() {
 
 	path := b.happyPath()
 
+	goTo := b.selectGoTo(path)
 	b.turn = client.Turn{
 		Direction:    b.selectGoTo(path),
-		Acceleration: b.acceleration(path),
+		Acceleration: b.acceleration(b.cellFromAndAngle(b.carCell(), goTo)),
 	}
 }
 
@@ -134,18 +137,31 @@ func (b *Bot) updateCells(cells []client.Cell) {
 	}
 }
 
-func (b *Bot) acceleration(path []client.Cell) int {
-	// if path[len(path)-2].Type == Pit {
-	// 	b.Help.MinCanyonSpeed
-	// }
-
-	safeSpeed := b.Help.MaxSpeed
-	for _, a := range b.Help.DriftsAngles {
-		if safeSpeed > a.MaxSpeed {
-			safeSpeed = a.MaxSpeed
-		}
+func (b *Bot) acceleration(goTo client.Cell) int {
+	safeSpeed := b.Help.MaxDuneSpeed + b.Help.MaxAcceleration
+	if goTo.Type != Pit && b.wasAcceleratedPrevious {
+		b.wasAcceleratedPrevious = false
 	}
-	return safeSpeed - b.car.Speed
+
+	if goTo.Type == Pit {
+		b.wasAcceleratedPrevious = true
+		acceleration := b.Help.MinCanyonSpeed - b.car.Speed
+		b.car.Speed += acceleration
+		return acceleration
+	}
+	if goTo.Type == DangerousArea {
+		acceleration := b.car.Speed - b.Help.MaxDuneSpeed
+		b.car.Speed += acceleration
+		return acceleration
+	}
+
+	acceleration := safeSpeed - b.car.Speed
+	if acceleration > b.Help.MaxAcceleration {
+		acceleration = b.Help.MaxAcceleration
+	}
+	b.car.Speed += acceleration
+
+	return acceleration
 }
 
 func (b *Bot) scan() {
@@ -386,6 +402,29 @@ func calcLeft(from string) string {
 }
 
 func (b *Bot) cellFromAndAngle(from client.Cell, heading string) client.Cell {
+	if heading == NorthEast {
+		return b.cell(from.X+1, from.Y, from.Z-1)
+	}
+	if heading == NorthWest {
+		return b.cell(from.X, from.Y+1, from.Z-1)
+	}
+	if heading == West {
+		return b.cell(from.X-1, from.Y+1, from.Z)
+	}
+	if heading == SouthWest {
+		return b.cell(from.X-1, from.Y, from.Z+1)
+	}
+	if heading == SouthEast {
+		return b.cell(from.X, from.Y-1, from.Z+1)
+	}
+	if heading == East {
+		return b.cell(from.X+1, from.Y-1, from.Z)
+	}
+
+	panic("smth broken")
+}
+
+func (b *Bot) coordFromPointAndAngle(from client.Cell, heading string) client.Cell {
 	if heading == NorthEast {
 		return b.cell(from.X+1, from.Y, from.Z-1)
 	}
