@@ -155,9 +155,9 @@ func (s *TurnResult) Cells() []Cell {
 
 func (s *TurnResult) Car() Car {
 	return Car{
-		X:            s.Location.X,
-		Y:            s.Location.Y,
-		Z:            s.Location.Z,
+		X:            s.Command.Location.X,
+		Y:            s.Command.Location.Y,
+		Z:            s.Command.Location.Z,
 		Direction:    s.Command.MovementDirection,
 		Acceleration: s.Command.Acceleration,
 		Heading:      s.Command.Heading,

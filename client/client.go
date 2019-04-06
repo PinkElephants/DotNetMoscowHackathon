@@ -104,9 +104,11 @@ func (c *Client) Turn(t Turn) TurnResult {
 	defer resp.Body.Close()
 
 	body, _ := ioutil.ReadAll(resp.Body)
+	str := string(body)
 	res := TurnResult{}
 	err = json.Unmarshal(body, &res)
 	checkErr(err)
+	_ = str
 	return res
 }
 

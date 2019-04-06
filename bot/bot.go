@@ -47,6 +47,9 @@ func (b *Bot) Start(info client.ServerInfo) {
 	b.car = info.Car()
 	b.allocateCells()
 	b.updateCells(info.Cells())
+	b.scan()
+
+	b.makeTurn()
 }
 
 func (b *Bot) Result(result client.TurnResult) {
@@ -54,6 +57,10 @@ func (b *Bot) Result(result client.TurnResult) {
 	b.updateCells(result.Cells())
 	b.scan()
 
+	b.makeTurn()
+}
+
+func (b *Bot) makeTurn() {
 	path := b.happyPath()
 	goTo := path[len(path)-2]
 
@@ -85,7 +92,7 @@ func (b *Bot) happyPath() []client.Cell {
 				best = current
 			}
 		})
-		if best == current {
+		if current.DistToCar == 0 {
 			break
 		}
 		current = best
@@ -105,6 +112,9 @@ func (b *Bot) allocateCells() {
 }
 
 func (b *Bot) updateCells(cells []client.Cell) {
+	carCell := b.cell(b.car.X, b.car.Y, b.car.Z)
+	carCell.Visible = true
+	b.setCell(b.car.X, b.car.Y, b.car.Z, carCell)
 	for _, c := range cells {
 		c.Visible = true
 		b.setCell(c.X, c.Y, c.Z, c)
@@ -127,7 +137,14 @@ func (b *Bot) acceleration(path []client.Cell) int {
 
 func (b *Bot) scan() {
 	b.iterAll(func(c client.Cell) {
+		if c.X == b.car.X && c.Y == b.car.Y && c.Z == b.car.Z {
+			a := 10
+			_ = a
+		}
 		if c.Type == Rock {
+			return
+		}
+		if !c.Visible {
 			return
 		}
 
@@ -143,6 +160,7 @@ func (b *Bot) scan() {
 			Z: b.info.Finish.Z,
 		})
 		c.DistToTarget = toTarget
+		b.setCell(c.X, c.Y, c.Z, c)
 	})
 }
 
@@ -182,14 +200,14 @@ func (b *Bot) iterAll(f func(c client.Cell)) {
 
 func (b *Bot) cell(x, y, z int) client.Cell {
 	r := b.info.Radius
-	if x > r || x < 0 {
-		return client.Cell{}
+	if x > r || x < -r {
+		panic("ups")
 	}
-	if y > r || y < 0 {
-		return client.Cell{}
+	if y > r || y < -r {
+		panic("ups")
 	}
-	if z > r || z < 0 {
-		return client.Cell{}
+	if z > r || z < -r {
+		panic("ups")
 	}
 	return b.cellsIndex[x+r][y+r][z+r]
 }
