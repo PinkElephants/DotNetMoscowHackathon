@@ -94,7 +94,7 @@ func (s *ServerInfo) Cells() []Cell {
 			Type: c.Item2,
 		}
 	}
-	return nil
+	return cells
 }
 
 func (s *ServerInfo) Car() Car {
