@@ -54,12 +54,16 @@ func (b *Bot) Result(result client.TurnResult) {
 	b.updateCells(result.Cells())
 	b.scan()
 
-	// path := b.happyPath()
-	// goTo := path[len(path)-2]
+	path := b.happyPath()
+	goTo := path[len(path)-2]
 
 	b.turn = client.Turn{
-		Direction:    "West",
-		Acceleration: b.acceleration(),
+		Direction: Side(client.Cell{
+			X: b.car.X,
+			Y: b.car.Y,
+			Z: b.car.Z,
+		}, goTo),
+		Acceleration: b.acceleration(path),
 	}
 }
 
@@ -73,7 +77,7 @@ func (b *Bot) happyPath() []client.Cell {
 	current := b.closestToTarget()
 	for {
 		best := current
-		b.iterateNeighbors(current, func(c client.Cell) {
+		b.iterNeighbors(current, func(c client.Cell) {
 			if !c.Visible {
 				return
 			}
@@ -107,7 +111,11 @@ func (b *Bot) updateCells(cells []client.Cell) {
 	}
 }
 
-func (b *Bot) acceleration() int {
+func (b *Bot) acceleration(path []client.Cell) int {
+	// if path[len(path)-2].Type == Pit {
+	// 	b.Help.MinCanyonSpeed
+	// }
+
 	safeSpeed := b.Help.MaxSpeed
 	for _, a := range b.Help.DriftsAngles {
 		if safeSpeed > a.MaxSpeed {
@@ -119,7 +127,7 @@ func (b *Bot) acceleration() int {
 
 func (b *Bot) scan() {
 	b.iterAll(func(c client.Cell) {
-		if c.Type == "Rock" {
+		if c.Type == Rock {
 			return
 		}
 
@@ -153,7 +161,7 @@ func (b *Bot) closestToTarget() client.Cell {
 	return dist
 }
 
-func (b *Bot) iterateNeighbors(cell client.Cell, f func(c client.Cell)) {
+func (b *Bot) iterNeighbors(cell client.Cell, f func(c client.Cell)) {
 	f(b.cellsIndex[cell.X-1][cell.Y+1][cell.Z])
 	f(b.cellsIndex[cell.X][cell.Y+1][cell.Z-1])
 	f(b.cellsIndex[cell.X+1][cell.Y][cell.Z-1])
