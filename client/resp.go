@@ -44,8 +44,10 @@ type Car struct {
 }
 
 type Cell struct {
-	X, Y, Z int
-	Type    string
+	X, Y, Z      int
+	Type         string
+	DistToCar    int
+	DistToTarget int
 }
 
 func (c *Cell) DistanceFrom(origin Cell) int {
