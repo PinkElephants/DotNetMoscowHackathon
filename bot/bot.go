@@ -62,7 +62,7 @@ func (b *Bot) Result(result client.TurnResult) {
 
 func (b *Bot) makeTurn() {
 	path := b.happyPath()
-	goTo := path[len(path)-2]
+	goTo := path[len(path)-1]
 
 	b.turn = client.Turn{
 		Direction: angle(client.Cell{
@@ -85,14 +85,14 @@ func (b *Bot) happyPath() []client.Cell {
 	for {
 		best := current
 		b.iterNeighbors(current, func(c client.Cell) {
-			if !c.Visible {
+			if c.Type == Rock || !c.Visible {
 				return
 			}
-			if current.DistToCar < best.DistToCar {
-				best = current
+			if c.DistToCar < best.DistToCar {
+				best = c
 			}
 		})
-		if current.DistToCar == 0 {
+		if best.DistToCar == 0 {
 			break
 		}
 		current = best
@@ -225,22 +225,22 @@ func angle(from client.Cell, to client.Cell) string {
 	southEast := client.Cell{X: from.X, Y: from.Y + 1, Z: from.Z - 1}
 	east := client.Cell{X: from.X + 1, Y: from.Y, Z: from.Z - 1}
 
-	if to == northEast {
+	if to.Equal(northEast) {
 		return NorthEast
 	}
-	if to == northWest {
+	if to.Equal(northWest) {
 		return NorthWest
 	}
-	if to == west {
+	if to.Equal(west) {
 		return West
 	}
-	if to == southWest {
+	if to.Equal(southWest) {
 		return SouthWest
 	}
-	if to == southEast {
+	if to.Equal(southEast) {
 		return SouthEast
 	}
-	if to == east {
+	if to.Equal(east) {
 		return East
 	}
 

@@ -51,6 +51,19 @@ type Cell struct {
 	Visible      bool
 }
 
+func (c Cell) Equal(other Cell) bool {
+	if c.X != other.X {
+		return false
+	}
+	if c.Y != other.Y {
+		return false
+	}
+	if c.Z != other.Z {
+		return false
+	}
+	return true
+}
+
 func (c *Cell) DistanceFrom(origin Cell) int {
 	res := (math.Abs(float64(c.X)-float64(origin.X)) + math.Abs(float64(c.Y)-float64(origin.Y)) + math.Abs(float64(c.Z)-float64(origin.Z))) / 2
 	return int(res)
