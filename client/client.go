@@ -84,6 +84,16 @@ func (c *Client) Start() ServerInfo {
 	return info
 }
 
+func (c *Client) UpdateUI() {
+	req := c.request("GET", raceURL+"?="+c.session, nil)
+	resp, err := c.http.Do(req)
+	checkErr(err)
+	body, _ := ioutil.ReadAll(resp.Body)
+	fmt.Print(string(body))
+
+	defer resp.Body.Close()
+}
+
 func (c *Client) Turn(t Turn) TurnResult {
 	turn, err := json.Marshal(t)
 

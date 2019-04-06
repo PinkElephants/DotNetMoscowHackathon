@@ -14,6 +14,7 @@ func main() {
 
 	for {
 		res := c.Turn(b.Turn())
+		//c.UpdateUI()
 		if res.Status == calc.Hungry || res.Status == calc.Punished || res.Status == calc.HappyAsInsane {
 			return
 		}
