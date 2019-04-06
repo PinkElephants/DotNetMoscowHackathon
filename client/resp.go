@@ -37,7 +37,6 @@ type Help struct {
 type Car struct {
 	X, Y, Z      int
 	Acceleration int
-	Direction    string
 	Heading      string
 	Speed        int
 	Fuel         int
@@ -114,11 +113,10 @@ func (s *ServerInfo) Cells() []Cell {
 
 func (s *ServerInfo) Car() Car {
 	return Car{
-		X:         s.CurrentLocation.X,
-		Y:         s.CurrentLocation.Y,
-		Z:         s.CurrentLocation.Z,
-		Direction: s.CurrentDirection,
-		Fuel:      s.Fuel,
+		X:    s.CurrentLocation.X,
+		Y:    s.CurrentLocation.Y,
+		Z:    s.CurrentLocation.Z,
+		Fuel: s.Fuel,
 	}
 }
 
@@ -170,10 +168,9 @@ func (s *TurnResult) Cells() []Cell {
 
 func (s *TurnResult) Car() Car {
 	return Car{
-		X:            s.Command.Location.X,
-		Y:            s.Command.Location.Y,
-		Z:            s.Command.Location.Z,
-		Direction:    s.Command.MovementDirection,
+		X:            s.Location.X,
+		Y:            s.Location.Y,
+		Z:            s.Location.Z,
 		Acceleration: s.Command.Acceleration,
 		Heading:      s.Command.Heading,
 		Speed:        s.Command.Speed,

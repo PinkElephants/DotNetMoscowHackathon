@@ -9,11 +9,11 @@ import (
 )
 
 const (
-	host     = "http://51.15.100.12:5000"
+	host     = "http://51.158.109.80:5000"
 	loginURL = host + "/raceapi/Auth/Login"
 	raceURL  = host + "/raceapi/race"
 	helpURL  = host + "/raceapi/help/math"
-	mapName  = "labirint"
+	mapName  = "test"
 )
 
 type Client struct {
@@ -82,6 +82,7 @@ func (c *Client) Start() ServerInfo {
 
 	body, _ := ioutil.ReadAll(resp.Body)
 	if resp.StatusCode != 200 {
+		fmt.Println(resp.StatusCode)
 		panic(string(body))
 	}
 
@@ -96,8 +97,7 @@ func (c *Client) UpdateUI() {
 	req := c.request("GET", raceURL+"?="+c.session, nil)
 	resp, err := c.http.Do(req)
 	checkErr(err)
-	body, _ := ioutil.ReadAll(resp.Body)
-	fmt.Print(string(body))
+	ioutil.ReadAll(resp.Body)
 
 	defer resp.Body.Close()
 }

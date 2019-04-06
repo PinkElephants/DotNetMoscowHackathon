@@ -77,15 +77,11 @@ func (b *Bot) Result(result client.TurnResult) {
 }
 
 func (b *Bot) makeTurn() {
-	car := b.carCell()
-	car.Visited = true
-	b.setCarCell(car)
-
 	path := b.happyPath()
 
 	goTo := b.selectGoTo(path)
 	b.turn = client.Turn{
-		Direction:    b.selectGoTo(path),
+		Direction:    goTo,
 		Acceleration: b.acceleration(b.cellFromAndAngle(b.carCell(), goTo)),
 	}
 }
@@ -130,6 +126,7 @@ func (b *Bot) allocateCells() {
 func (b *Bot) updateCells(cells []client.Cell) {
 	carCell := b.cell(b.car.X, b.car.Y, b.car.Z)
 	carCell.Visible = true
+	carCell.Visited = true
 	b.setCell(b.car.X, b.car.Y, b.car.Z, carCell)
 	for _, c := range cells {
 		c.Visible = true
@@ -139,21 +136,21 @@ func (b *Bot) updateCells(cells []client.Cell) {
 
 func (b *Bot) acceleration(goTo client.Cell) int {
 	safeSpeed := b.Help.MaxDuneSpeed + b.Help.MaxAcceleration
-	if goTo.Type != Pit && b.wasAcceleratedPrevious {
-		b.wasAcceleratedPrevious = false
-	}
-
-	if goTo.Type == Pit {
-		b.wasAcceleratedPrevious = true
-		acceleration := b.Help.MinCanyonSpeed - b.car.Speed
-		b.car.Speed += acceleration
-		return acceleration
-	}
-	if goTo.Type == DangerousArea {
-		acceleration := b.car.Speed - b.Help.MaxDuneSpeed
-		b.car.Speed += acceleration
-		return acceleration
-	}
+	// if goTo.Type != Pit && b.wasAcceleratedPrevious {
+	// 	b.wasAcceleratedPrevious = false
+	// }
+	//
+	// if goTo.Type == Pit {
+	// 	b.wasAcceleratedPrevious = true
+	// 	acceleration := b.Help.MinCanyonSpeed - b.car.Speed
+	// 	b.car.Speed += acceleration
+	// 	return acceleration
+	// }
+	// if goTo.Type == DangerousArea {
+	// 	acceleration := b.car.Speed - b.Help.MaxDuneSpeed
+	// 	b.car.Speed += acceleration
+	// 	return acceleration
+	// }
 
 	acceleration := safeSpeed - b.car.Speed
 	if acceleration > b.Help.MaxAcceleration {
@@ -402,29 +399,6 @@ func calcLeft(from string) string {
 }
 
 func (b *Bot) cellFromAndAngle(from client.Cell, heading string) client.Cell {
-	if heading == NorthEast {
-		return b.cell(from.X+1, from.Y, from.Z-1)
-	}
-	if heading == NorthWest {
-		return b.cell(from.X, from.Y+1, from.Z-1)
-	}
-	if heading == West {
-		return b.cell(from.X-1, from.Y+1, from.Z)
-	}
-	if heading == SouthWest {
-		return b.cell(from.X-1, from.Y, from.Z+1)
-	}
-	if heading == SouthEast {
-		return b.cell(from.X, from.Y-1, from.Z+1)
-	}
-	if heading == East {
-		return b.cell(from.X+1, from.Y-1, from.Z)
-	}
-
-	panic("smth broken")
-}
-
-func (b *Bot) coordFromPointAndAngle(from client.Cell, heading string) client.Cell {
 	if heading == NorthEast {
 		return b.cell(from.X+1, from.Y, from.Z-1)
 	}
