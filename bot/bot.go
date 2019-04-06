@@ -1,6 +1,10 @@
 package calc
 
 import (
+	"fmt"
+	"math/rand"
+	"sort"
+
 	"github.com/PinkElephants/DotNetMoscowHackathon/client"
 )
 
@@ -21,6 +25,15 @@ const (
 	SouthWest = "SouthWest"
 )
 
+var angles = []string{
+	East,
+	West,
+	NorthEast,
+	NorthWest,
+	SouthEast,
+	SouthWest,
+}
+
 const (
 	Empty         = "Empty"
 	Rock          = "Rock"
@@ -31,7 +44,8 @@ const (
 type Bot struct {
 	Help client.Help
 
-	info client.ServerInfo
+	info   client.ServerInfo
+	result client.TurnResult
 
 	turn       client.Turn
 	car        client.Car
@@ -61,15 +75,14 @@ func (b *Bot) Result(result client.TurnResult) {
 }
 
 func (b *Bot) makeTurn() {
+	car := b.carCell()
+	car.Visited = true
+	b.setCarCell(car)
+
 	path := b.happyPath()
-	goTo := path[len(path)-1]
 
 	b.turn = client.Turn{
-		Direction: angle(client.Cell{
-			X: b.car.X,
-			Y: b.car.Y,
-			Z: b.car.Z,
-		}, goTo),
+		Direction:    b.selectGoTo(path),
 		Acceleration: b.acceleration(path),
 	}
 }
@@ -156,6 +169,9 @@ func (b *Bot) scan() {
 			Z: b.info.Finish.Z,
 		})
 		c.DistToTarget = toTarget
+
+		c.NearWall = b.nearWall(c)
+
 		b.setCell(c.X, c.Y, c.Z, c)
 	})
 }
@@ -238,6 +254,155 @@ func angle(from client.Cell, to client.Cell) string {
 	}
 	if to.Equal(east) {
 		return East
+	}
+
+	fmt.Println("wrong goto")
+	return angles[rand.Int()%6]
+}
+
+func (b *Bot) nearWall(cell client.Cell) bool {
+	var near bool
+	b.iterNeighbors(cell, func(c client.Cell) {
+		if c.Type == Rock {
+			near = true
+		}
+	})
+	return near
+}
+
+func (b *Bot) selectGoTo(path []client.Cell) string {
+	type candidate struct {
+		angle    string
+		priority int
+	}
+
+	var heading string
+	if len(b.result.Heading) != 0 {
+		heading = b.result.Heading
+	} else {
+		if len(path) == 0 {
+			heading = angles[rand.Int()%6]
+		} else {
+			happy := path[len(path)-1]
+			heading = angle(
+				b.carCell(),
+				happy,
+			)
+		}
+	}
+
+	cell := b.cellFromAndAngle(b.carCell(), heading)
+	if cell.Type != Rock && cell.Visible {
+		return heading
+	}
+
+	left := heading
+	right := heading
+	var cands []candidate
+	for i := 0; i < 3; i++ {
+		left = calcLeft(left)
+		right = calcRight(right)
+		leftCell := b.cellFromAndAngle(b.carCell(), left)
+		rightCell := b.cellFromAndAngle(b.carCell(), right)
+
+		if leftCell.Visible && leftCell.Type != Rock {
+			leftPri := 0
+			if leftCell.Visited {
+				leftPri += 2
+			}
+			if leftCell.NearWall {
+				leftPri += 1
+			}
+			cands = append(cands, candidate{angle: left, priority: leftPri + i*3})
+		}
+
+		if rightCell.Visible && rightCell.Type != Rock {
+			rightPri := 0
+			if rightCell.Visited {
+				rightPri += 2
+			}
+			if rightCell.NearWall {
+				rightPri += 2
+			}
+			cands = append(cands, candidate{angle: right, priority: rightPri + i*3})
+		}
+	}
+
+	sort.Slice(cands, func(i, j int) bool {
+		return cands[i].priority < cands[j].priority
+	})
+
+	if len(cands) == 0 {
+		return angles[rand.Int()%6]
+	}
+
+	return cands[0].angle
+}
+
+func (b *Bot) carCell() client.Cell {
+	return b.cell(b.car.X, b.car.Y, b.car.Z)
+}
+
+func (b *Bot) setCarCell(cell client.Cell) {
+	b.setCell(b.car.X, b.car.Y, b.car.Z, cell)
+}
+
+func calcRight(from string) string {
+	switch from {
+	case East:
+		return SouthEast
+	case SouthEast:
+		return SouthWest
+	case SouthWest:
+		return West
+	case West:
+		return NorthWest
+	case NorthWest:
+		return NorthEast
+	case NorthEast:
+		return East
+	}
+
+	return angles[rand.Int()%6]
+}
+
+func calcLeft(from string) string {
+	switch from {
+	case East:
+		return NorthEast
+	case NorthEast:
+		return NorthWest
+	case NorthWest:
+		return West
+	case West:
+		return SouthWest
+	case SouthWest:
+		return SouthEast
+	case SouthEast:
+		return East
+	}
+
+	return angles[rand.Int()%6]
+}
+
+func (b *Bot) cellFromAndAngle(from client.Cell, heading string) client.Cell {
+	if heading == NorthEast {
+		return b.cell(from.X+1, from.Y, from.Z-1)
+	}
+	if heading == NorthWest {
+		return b.cell(from.X, from.Y+1, from.Z-1)
+	}
+	if heading == West {
+		return b.cell(from.X-1, from.Y+1, from.Z)
+	}
+	if heading == SouthWest {
+		return b.cell(from.X-1, from.Y, from.Z+1)
+	}
+	if heading == SouthEast {
+		return b.cell(from.X, from.Y-1, from.Z+1)
+	}
+	if heading == East {
+		return b.cell(from.X+1, from.Y-1, from.Z)
 	}
 
 	panic("smth broken")

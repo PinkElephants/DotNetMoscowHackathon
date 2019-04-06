@@ -13,7 +13,7 @@ const (
 	loginURL = host + "/raceapi/Auth/Login"
 	raceURL  = host + "/raceapi/race"
 	helpURL  = host + "/raceapi/help/math"
-	mapName  = "test"
+	mapName  = "labirint"
 )
 
 type Client struct {
@@ -59,6 +59,10 @@ func (c *Client) Help() Help {
 	defer resp.Body.Close()
 
 	body, _ := ioutil.ReadAll(resp.Body)
+	if resp.StatusCode != 200 {
+		panic(string(body))
+	}
+
 	help := Help{}
 	err = json.Unmarshal(body, &help)
 
@@ -77,6 +81,10 @@ func (c *Client) Start() ServerInfo {
 	defer resp.Body.Close()
 
 	body, _ := ioutil.ReadAll(resp.Body)
+	if resp.StatusCode != 200 {
+		panic(string(body))
+	}
+
 	info := ServerInfo{}
 	err = json.Unmarshal(body, &info)
 	checkErr(err)
@@ -104,11 +112,13 @@ func (c *Client) Turn(t Turn) TurnResult {
 	defer resp.Body.Close()
 
 	body, _ := ioutil.ReadAll(resp.Body)
-	str := string(body)
+	if resp.StatusCode != 200 {
+		panic(string(body))
+	}
+
 	res := TurnResult{}
 	err = json.Unmarshal(body, &res)
 	checkErr(err)
-	_ = str
 	return res
 }
 

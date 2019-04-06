@@ -49,6 +49,8 @@ type Cell struct {
 	DistToCar    int
 	DistToTarget int
 	Visible      bool
+	NearWall     bool
+	Visited      bool
 }
 
 func (c Cell) Equal(other Cell) bool {
